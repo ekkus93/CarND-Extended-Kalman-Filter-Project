@@ -9,7 +9,7 @@ set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 set(sources src/main.cpp src/tools.cpp src/FusionEKF.cpp src/kalman_filter.cpp src/tools.h src/FusionEKF.h src/kalman_filter.h)
 
-set(test_sources test/gtest_main.cpp test/FusionEKF_test.cpp test/kalman_filter_test.cpp test/tools_test.cpp src/tools.cpp src/tools.h)
+set(test_sources test/gtest_main.cpp test/FusionEKF_test.cpp test/kalman_filter_test.cpp test/tools_test.cpp src/tools.cpp src/tools.h src/kalman_filter.cpp src/kalman_filter.h)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 

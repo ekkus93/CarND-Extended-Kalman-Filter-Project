@@ -95,7 +95,7 @@ TEST(CalculateRMSETest, PresetVectors) {
   }
 }
 
-TEST(CalculateJacobian, PresetVectors) {
+TEST(CalculateJacobian, PresetVector) {
   Tools tools; 
 
 	//predicted state  example
