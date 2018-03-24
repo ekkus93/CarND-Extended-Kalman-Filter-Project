@@ -94,3 +94,31 @@ TEST(CalculateRMSETest, PresetVectors) {
     EXPECT_NEAR(RMSE(i), 0.1, 0.001); 
   }
 }
+
+TEST(CalculateJacobian, PresetVectors) {
+  Tools tools; 
+
+	//predicted state  example
+	//px = 1, py = 2, vx = 0.2, vy = 0.4
+	VectorXd x_predicted(4);
+	x_predicted << 1, 2, 0.2, 0.4;
+
+  MatrixXd expected_Hj(3, 4);
+  std::cout << "expected_Hj - rows: " << expected_Hj.rows() << ", cols: " << expected_Hj.cols() << "\n";
+  expected_Hj << 0.447214, 0.894427, 0, 0, 
+                  -0.4, 0.2, 0, 0,
+                  0, 0, 0.447214, 0.894427;
+
+	MatrixXd Hj = tools.CalculateJacobian(x_predicted);
+  std::cout << "Hj - rows: " << Hj.rows() << ", cols: " << Hj.cols() << "\n";
+
+  for(int row=0; row<expected_Hj.rows(); row++) 
+  {
+    for(int col=0; col<expected_Hj.cols(); col++) 
+    {
+      float actual_val = Hj(row, col);
+      float expected_val = expected_Hj(row, col);
+      EXPECT_NEAR(actual_val, expected_val, 0.0001); 
+    }
+  }
+}
