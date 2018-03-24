@@ -9,18 +9,22 @@ set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
 set(sources src/main.cpp src/tools.cpp src/FusionEKF.cpp src/kalman_filter.cpp src/tools.h src/FusionEKF.h src/kalman_filter.h)
 
+set(test_sources test/gtest_main.cpp test/FusionEKF_test.cpp test/kalman_filter_test.cpp test/tools_test.cpp src/tools.cpp src/tools.h)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
 include_directories(/usr/local/include)
 include_directories(/usr/local/opt/openssl/include)
+include_directories(src)
 link_directories(/usr/local/lib)
 link_directories(/usr/local/opt/openssl/lib)
 link_directories(/usr/local/Cellar/libuv/1.19.2/lib)
 
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
-
 add_executable(ExtendedKF ${sources})
+add_executable(Test_ExtendedKF ${test_sources})
+set_target_properties(Test_ExtendedKF PROPERTIES LINKER_LANGUAGE CXX)
 
 target_link_libraries(ExtendedKF z ssl uv uWS)
+target_link_libraries(Test_ExtendedKF gtest gmock z ssl uv uWS)

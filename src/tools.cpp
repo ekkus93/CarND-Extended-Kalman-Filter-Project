@@ -1,5 +1,6 @@
 #include <iostream>
 #include "tools.h"
+#include <assert.h> 
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -16,11 +17,10 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   TODO:
     * Calculate the RMSE here.
   */
-  VectorXd rmse(estimations.size());
-  for (int i = 0; i < estimations.size(); i++)
-  {
-    rmse << 0;
-  }
+  assert(estimations.size() > 0 && estimations.size() == ground_truth.size());
+
+  VectorXd rmse(4);
+  rmse << 0,0,0,0;
 
   for (int i = 0; i < estimations.size(); i++)
   {
