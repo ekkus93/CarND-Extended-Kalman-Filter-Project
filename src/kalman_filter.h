@@ -11,17 +11,22 @@ public:
   // state covariance matrix
   Eigen::MatrixXd P_;
 
+  // external motion
+  Eigen::VectorXd u_;
+
   // state transition matrix
   Eigen::MatrixXd F_;
-
-  // process covariance matrix
-  Eigen::MatrixXd Q_;
 
   // measurement matrix
   Eigen::MatrixXd H_;
 
   // measurement covariance matrix
   Eigen::MatrixXd R_;
+
+  Eigen::MatrixXd I_;
+
+  // process covariance matrix
+  Eigen::MatrixXd Q_;
 
   /**
    * Constructor
@@ -57,6 +62,8 @@ public:
    * @param z The measurement at k+1
    */
   void Update(const Eigen::VectorXd &z);
+
+  Eigen::VectorXd MakeZPred();
 
   /**
    * Updates the state by using Extended Kalman Filter equations
