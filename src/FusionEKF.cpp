@@ -3,6 +3,7 @@
 #include "sensor_data.h"
 #include "Eigen/Dense"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 using Eigen::MatrixXd;

@@ -1,7 +1,10 @@
 #ifndef SENSOR_DATA_H_
 #define SENSOR_DATA_H_
 
+#include <string>
 #include "measurement_package.h"
+
+using namespace std;
 
 class RadarData {
   public:

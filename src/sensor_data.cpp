@@ -1,6 +1,9 @@
 #include "sensor_data.h"
 #include <string>
 #include <sstream>
+#include <vector>
+
+using namespace std;
 
 // RadarData
 RadarData::RadarData() 
@@ -61,6 +64,8 @@ MeasurementPackage RadarData::ToMeasurementPackage()
   measurement_pack.sensor_type_ = MeasurementPackage::RADAR;
   measurement_pack.timestamp_ = timestamp_;
   measurement_pack.raw_measurements_ << rho_measured_, phi_measured_, rhodot_measured_;  
+
+  return measurement_pack;
 }
 
 void RadarData::GetXY(float &x, float &y)
@@ -130,4 +135,6 @@ MeasurementPackage LidarData::ToMeasurementPackage()
   measurement_pack.timestamp_ = timestamp_;
   
   measurement_pack.raw_measurements_ << x_measured_, y_measured_;  
+
+  return measurement_pack;
 }
