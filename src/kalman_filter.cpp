@@ -1,4 +1,7 @@
 #include "kalman_filter.h"
+#include <iostream>
+
+using namespace std;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -23,6 +26,8 @@ KalmanFilter::KalmanFilter() {
 			  0, 0, 0, 1;
 
   I_ = MatrixXd::Identity(4, 4);
+
+  Q_ = MatrixXd(4, 4);
 }
 
 KalmanFilter::~KalmanFilter() {}
@@ -98,11 +103,23 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd K = P_ * Ht * Si;
 
   // new state
-  x_ = x_ * (K * y);
+  /*
+  cout << "###y: " << y.rows() << ", " << y.cols() << "\n";
+  cout << "###K: " << K.rows() << ", " << K.cols() << "\n";
+  cout << "###x_: " << x_.rows() << ", " << x_.cols() << "\n";
+  */
+  x_ = x_ + (K * y);
   P_ = (I_ - K * H_) * P_;
+}
 
-  // KF Prediction step
-  x_ = F_ * x_ + u_;
-  MatrixXd Ft = F_.transpose();
-  P_ = F_ * P_ * Ft + Q_;
+void KalmanFilter::DisplayData()
+{
+  cout << "x_: \n" << x_ << "\n";
+  cout << "P_: \n" << P_ << "\n";
+  cout << "u_: \n" << P_ << "\n";
+  cout << "F_: \n" << F_ << "\n";
+  cout << "H_: \n" << H_ << "\n";
+  cout << "R_: \n" << R_ << "\n";
+  cout << "I_: \n" << I_ << "\n";
+  cout << "Q_: \n" << Q_ << "\n";
 }

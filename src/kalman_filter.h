@@ -71,6 +71,7 @@ public:
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
+  void DisplayData();
 };
 
 #endif /* KALMAN_FILTER_H_ */

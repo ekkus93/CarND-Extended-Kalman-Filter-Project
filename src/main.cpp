@@ -134,6 +134,8 @@ int main()
           estimations.push_back(estimate);
 
           VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+          cout << "###timestamp: " << meas_package.timestamp_ << "\n";
+          cout << "###RMSE: " << RMSE << "\n";
 
           json msgJson;
           msgJson["estimate_x"] = p_x;

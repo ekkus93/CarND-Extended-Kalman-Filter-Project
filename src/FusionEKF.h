@@ -8,45 +8,7 @@
 #include <fstream>
 #include "kalman_filter.h"
 #include "tools.h"
-
-class RadarData {
-  public:
-    RadarData();
-    RadarData(const MeasurementPackage &measurement_pack);
-    virtual ~RadarData();
-
-    void GetXY(float &x, float &y);
-
-    float rho_measured_;
-    float phi_measured_;
-    float rhodot_measured_;
-    long timestamp_;
-    float x_groundtruth_;
-
-    float y_groundtruth_;
-    float vx_groundtruth_;
-    float vy_groundtruth_;
-    float yaw_groundtruth_;
-    float yawrate_groundtruth_;
-};
-
-class LidarData {
-  public:
-    LidarData();
-    LidarData(const MeasurementPackage &measurement_pack);
-    virtual ~LidarData();
-
-    float x_measured_;
-    float y_measured_;
-    long timestamp_;
-    float x_groundtruth_;
-    float y_groundtruth_;
-
-    float vx_groundtruth_;
-    float vy_groundtruth_;
-    float yaw_groundtruth_;
-    float yawrate_groundtruth_;
-};
+#include "sensor_data.h"
 
 class FusionEKF {
 public:
@@ -60,10 +22,22 @@ public:
   */
   virtual ~FusionEKF();
 
+  void Init(const MeasurementPackage &measurement_pack);
+  void Init_Radar(const MeasurementPackage &measurement_pack);
+  void Init_Lidar(const MeasurementPackage &measurement_pack);
+
+  void PredictAndUpdate_Radar(const MeasurementPackage &measurement_pack);
+  void PredictAndUpdate_Lidar(const MeasurementPackage &measurement_pack);
+
+  void SetF_(float dt);
+  void SetQ_(float dt);
+
   /**
   * Run the whole flow of the Kalman Filter from here.
   */
   void ProcessMeasurement(const MeasurementPackage &measurement_pack);
+
+  void DisplayData();
 
   /**
   * Kalman Filter update and prediction math lives in here.
