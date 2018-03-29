@@ -47,8 +47,8 @@ FusionEKF::FusionEKF() {
   H_laser_ << 1, 0, 0, 0,
               0, 1, 0, 0;
 
-	noise_ax_ = 9;
-	noise_ay_ = 9;
+	noise_ax_ = 6;
+	noise_ay_ = 6;
 
   DisplayData();
 }

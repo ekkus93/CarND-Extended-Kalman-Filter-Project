@@ -15,7 +15,6 @@ class RadarData {
     virtual ~RadarData();
 
     MeasurementPackage ToMeasurementPackage();
-    float ConstrainAngle(float angle);
     void GetXY(float &x, float &y);
     Eigen::VectorXd GetGroundTruth();
 

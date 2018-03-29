@@ -2,6 +2,7 @@
 #include <iostream>
 #include <math.h>
 #include <assert.h>
+#include "tools.h"
 
 using namespace std;
 
@@ -91,7 +92,7 @@ VectorXd KalmanFilter::h()
   else
   {
     float rho = sqrt(x*x+y*y);
-    float theta = atan2(y, x);
+    float theta = atan2(y, x); 
     float rho_dot = (x*vx+y*vy)/rho;
 
     z_pred << rho, theta, rho_dot;
@@ -113,6 +114,8 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   VectorXd z_pred = h();
 
   VectorXd y = z - z_pred;
+  Tools tools;
+  y(1) = tools.ConstrainAngle(y(1));
 
   MatrixXd Ht = H_.transpose();
   MatrixXd S = H_ * P_ * Ht + R_;

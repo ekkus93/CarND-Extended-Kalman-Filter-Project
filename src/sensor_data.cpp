@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <assert.h>
+#include "tools.h"
 
 using namespace std;
 using Eigen::VectorXd;
@@ -73,24 +74,11 @@ MeasurementPackage RadarData::ToMeasurementPackage()
   return measurement_pack;
 }
 
-float RadarData::ConstrainAngle(float angle)
-{
-    while (angle > M_PI) 
-    {
-        angle -= 2.0*M_PI;    
-    }
-    
-    while (angle < -M_PI)
-    {
-        angle += 2.0*M_PI;
-    }
-    
-    return angle;
-}
-
 void RadarData::GetXY(float &x, float &y)
 {
-    float normalized_rho = ConstrainAngle(rho_measured_);
+    Tools tools;
+
+    float normalized_rho = tools.ConstrainAngle(rho_measured_);
     x = rho_measured_ * cos(phi_measured_);
     y = rho_measured_ * sin(phi_measured_);
 

@@ -194,12 +194,13 @@ TEST(FusionEKFTest, ProcessMeasurement_Radar)
 
   FusionEKF fEKF;
   Tools tools;
+  int n = 100;
 
   // Init
   fEKF.Init_Radar(mp);
   estimation_vec.push_back(fEKF.ekf_.x_);
 
-  for(int i=0; i<10; i++)
+  for(int i=0; i<n; i++)
   {
     cout << "###i: " << i << "\n";
     // get next Lidar reading
