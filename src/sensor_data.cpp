@@ -2,8 +2,10 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <assert.h>
 
 using namespace std;
+using Eigen::VectorXd;
 
 // RadarData
 RadarData::RadarData() 
@@ -30,11 +32,12 @@ RadarData::RadarData(const MeasurementPackage &measurement_pack)
   }
 }
 
-RadarData::RadarData(string lineStr)
+RadarData::RadarData(const char* lineStr)
 {
+  string _lineStr = string(lineStr);
   vector<string> parsedWords;
   string buf;
-  stringstream ss(lineStr);
+  stringstream ss(_lineStr);
 
   while(ss >> buf)
   {
@@ -63,15 +66,36 @@ MeasurementPackage RadarData::ToMeasurementPackage()
 
   measurement_pack.sensor_type_ = MeasurementPackage::RADAR;
   measurement_pack.timestamp_ = timestamp_;
+
+  measurement_pack.raw_measurements_ = VectorXd(3);
   measurement_pack.raw_measurements_ << rho_measured_, phi_measured_, rhodot_measured_;  
 
   return measurement_pack;
 }
 
+float RadarData::ConstrainAngle(float angle)
+{
+    while (angle > M_PI) 
+    {
+        angle -= 2.0*M_PI;    
+    }
+    
+    while (angle < -M_PI)
+    {
+        angle += 2.0*M_PI;
+    }
+    
+    return angle;
+}
+
 void RadarData::GetXY(float &x, float &y)
 {
-    x = phi_measured_ * cos(rhodot_measured_);
-    y = phi_measured_ * sin(rhodot_measured_);
+    float normalized_rho = ConstrainAngle(rho_measured_);
+    x = rho_measured_ * cos(phi_measured_);
+    y = rho_measured_ * sin(phi_measured_);
+
+    assert(!isnan(x));
+    assert(!isnan(y));
 }
 
 // LidarData
@@ -101,8 +125,9 @@ LidarData::LidarData(const MeasurementPackage &measurement_pack)
   }
 }
 
-LidarData::LidarData(string lineStr)
+LidarData::LidarData(const char* lineStr)
 {
+  string _lineStr = string(lineStr);
   vector<string> parsedWords;
   string buf;
   stringstream ss(lineStr);
@@ -134,7 +159,17 @@ MeasurementPackage LidarData::ToMeasurementPackage()
   measurement_pack.sensor_type_ = MeasurementPackage::LASER;
   measurement_pack.timestamp_ = timestamp_;
   
+  measurement_pack.raw_measurements_ = VectorXd(2);
   measurement_pack.raw_measurements_ << x_measured_, y_measured_;  
 
   return measurement_pack;
+}
+
+VectorXd LidarData::GetGroundTruth()
+{
+  VectorXd groundTruth = VectorXd(4);
+
+  groundTruth << x_groundtruth_, y_groundtruth_, vx_groundtruth_, vy_groundtruth_;
+
+  return groundTruth;
 }

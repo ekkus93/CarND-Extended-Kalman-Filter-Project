@@ -31,6 +31,7 @@ public:
 
   void SetF_(float dt);
   void SetQ_(float dt);
+  float CalcDt(long long t0, long long t1);
 
   /**
   * Run the whole flow of the Kalman Filter from here.
@@ -38,6 +39,15 @@ public:
   void ProcessMeasurement(const MeasurementPackage &measurement_pack);
 
   void DisplayData();
+
+  bool GetIsInitialized();
+  long long GetPreviousTimestamp();
+  Eigen::MatrixXd GetRLaser();
+  Eigen::MatrixXd GetRRadar();
+  Eigen::MatrixXd GetHLaser();
+  Eigen::MatrixXd GetHj();  
+  float GetNoiseAx();
+  float GetNoiseAy();
 
   /**
   * Kalman Filter update and prediction math lives in here.
@@ -59,8 +69,8 @@ private:
   Eigen::MatrixXd Hj_;
   
 	//acceleration noise components
-	float noise_ax;
-	float noise_ay;
+	float noise_ax_;
+	float noise_ay_;
 };
 
 #endif /* FusionEKF_H_ */

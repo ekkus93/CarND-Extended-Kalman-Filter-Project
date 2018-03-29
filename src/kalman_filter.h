@@ -63,7 +63,7 @@ public:
    */
   void Update(const Eigen::VectorXd &z);
 
-  Eigen::VectorXd MakeZPred();
+  Eigen::VectorXd h();
 
   /**
    * Updates the state by using Extended Kalman Filter equations

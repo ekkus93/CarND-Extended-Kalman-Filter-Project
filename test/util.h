@@ -52,4 +52,6 @@ class LaserRadarDataReader {
     ifstream* file_;
 };
 
+float calcErr(float expectedVal, float actualVal);
+
 #endif /* TEST_UTIL_H_ */

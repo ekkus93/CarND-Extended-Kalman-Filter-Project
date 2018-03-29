@@ -1,5 +1,7 @@
 #include "kalman_filter.h"
 #include <iostream>
+#include <math.h>
+#include <assert.h>
 
 using namespace std;
 
@@ -72,18 +74,33 @@ void KalmanFilter::Update(const VectorXd &z) {
 	P_ = (I - K * H_) * P_;  
 }
 
-VectorXd KalmanFilter::MakeZPred()
+VectorXd KalmanFilter::h()
 {
   float x = x_(0);
   float y = x_(1);
   float vx = x_(2);
   float vy = x_(3);
 
-  float rho = sqrt(x*x+y*y);
-  float theta = atan2(y, x);
-  float ro_dot = (x*vx+y*vy)/rho;
   VectorXd z_pred = VectorXd(3);
-  z_pred << rho, theta, ro_dot;
+
+  if (fabs(x) < 0.0001 && fabs(y) < 0.0001)
+  {
+    // catch div by 0
+    z_pred << 0.0, 0.0, 0.0;
+  }
+  else
+  {
+    float rho = sqrt(x*x+y*y);
+    float theta = atan2(y, x);
+    float rho_dot = (x*vx+y*vy)/rho;
+
+    z_pred << rho, theta, rho_dot;
+  }
+
+  for(int i=0; i<3; i++)
+  {
+    assert(!isnan(z_pred(i)));
+  }
 
   return z_pred;
 }
@@ -93,7 +110,7 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   TODO:
     * update the state by using Extended Kalman Filter equations
   */
-  VectorXd z_pred = MakeZPred();
+  VectorXd z_pred = h();
 
   VectorXd y = z - z_pred;
 

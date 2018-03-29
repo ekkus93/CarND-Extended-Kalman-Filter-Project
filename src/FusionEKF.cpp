@@ -47,8 +47,8 @@ FusionEKF::FusionEKF() {
   H_laser_ << 1, 0, 0, 0,
               0, 1, 0, 0;
 
-	noise_ax = 9;
-	noise_ay = 9;
+	noise_ax_ = 9;
+	noise_ay_ = 9;
 
   DisplayData();
 }
@@ -68,8 +68,6 @@ void FusionEKF::Init(const MeasurementPackage &measurement_pack)
     */
     // first measurement
     cout << "EKF: " << endl;
-    ekf_.x_ = VectorXd(4);
-    ekf_.x_ << 1, 1, 1, 1;
 
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       Init_Radar(measurement_pack);
@@ -77,15 +75,13 @@ void FusionEKF::Init(const MeasurementPackage &measurement_pack)
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       Init_Lidar(measurement_pack);
     }
-
-    previous_timestamp_ = measurement_pack.timestamp_;
-
-    // done initializing, no need to predict or update
-    is_initialized_ = true;  
 }
 
 void FusionEKF::Init_Radar(const MeasurementPackage &measurement_pack)
 {
+  ekf_.x_ = VectorXd(4);
+  ekf_.x_ << 1, 1, 0, 0;
+
   /**
   Convert radar from polar to cartesian coordinates and initialize state.
   */
@@ -94,23 +90,35 @@ void FusionEKF::Init_Radar(const MeasurementPackage &measurement_pack)
   float x_measured, y_measured;
   radarData.GetXY(x_measured, y_measured);
 
-  if (x_measured == 0 || y_measured == 0) 
+  if (x_measured != 0 && y_measured != 0)
   {
-    return;
+    ekf_.x_(0) = x_measured;
+    ekf_.x_(1) = y_measured;    
   } 
-  else
-  {
-    ekf_.x_ << x_measured, y_measured, 0, 0;
-  } 
+
+  previous_timestamp_ = measurement_pack.timestamp_;
+
+  // done initializing, no need to predict or update
+  is_initialized_ = true;  
 }
 
 void FusionEKF::Init_Lidar(const MeasurementPackage &measurement_pack)
 {
+  ekf_.x_ = VectorXd(4);
+  ekf_.x_ << 1, 1, 0, 0;
+
   /**
   Initialize state.
   */
   LidarData lidarData = LidarData(measurement_pack);
-  ekf_.x_ << lidarData.x_measured_, lidarData.y_measured_, 0, 0;
+
+  ekf_.x_(0) = lidarData.x_measured_;
+  ekf_.x_(1) = lidarData.y_measured_;
+
+  previous_timestamp_ = measurement_pack.timestamp_;
+
+  // done initializing, no need to predict or update
+  is_initialized_ = true;  
 }
 
 void FusionEKF::PredictAndUpdate_Radar(const MeasurementPackage &measurement_pack)
@@ -147,10 +155,15 @@ void FusionEKF::SetQ_(float dt)
   float dt_3 = dt_2 * dt;
   float dt_4 = dt_3 * dt;
 
-  ekf_.Q_ << dt_4/4*noise_ax, 0, dt_3/2*noise_ax, 0,
-			        0, dt_4/4*noise_ay, 0, dt_3/2*noise_ay,
-			        dt_3/2*noise_ax, 0, dt_2*noise_ax, 0,
-			        0, dt_3/2*noise_ay, 0, dt_2*noise_ay;
+  ekf_.Q_ << dt_4/4*noise_ax_, 0, dt_3/2*noise_ax_, 0,
+			        0, dt_4/4*noise_ay_, 0, dt_3/2*noise_ay_,
+			        dt_3/2*noise_ax_, 0, dt_2*noise_ax_, 0,
+			        0, dt_3/2*noise_ay_, 0, dt_2*noise_ay_;
+}
+
+float FusionEKF::CalcDt(long long t0, long long t1)
+{
+  return (t1 - t0)/1000000.0;
 }
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
@@ -174,7 +187,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
 
-  float dt = (measurement_pack.timestamp_ - previous_timestamp_)/1000000.0;
+  float dt = CalcDt(previous_timestamp_, measurement_pack.timestamp_);
+
   previous_timestamp_ = measurement_pack.timestamp_;
 
   SetF_(dt);
@@ -209,8 +223,48 @@ void FusionEKF::DisplayData()
   cout << "R_radar_: \n" << R_radar_ << "\n";
   cout << "H_laser_: \n" << H_laser_ << "\n";
   cout << "Hj_: \n" << Hj_ << "\n";
-  cout << "noise_ax: \n" << noise_ax << "\n";  
-  cout << "noise_ay: \n" << noise_ay << "\n"; 
+  cout << "noise_ax: \n" << noise_ax_ << "\n";  
+  cout << "noise_ay: \n" << noise_ay_ << "\n"; 
   cout << "ekf_:\n";
   ekf_.DisplayData();
+}
+
+bool FusionEKF::GetIsInitialized()
+{
+  return is_initialized_;
+}
+
+long long FusionEKF::GetPreviousTimestamp()
+{
+  return previous_timestamp_;
+}
+
+Eigen::MatrixXd FusionEKF::GetRLaser()
+{
+  return R_laser_;
+}
+
+Eigen::MatrixXd FusionEKF::GetRRadar()
+{
+  return R_radar_;
+}
+
+Eigen::MatrixXd FusionEKF::GetHLaser()
+{
+  return H_laser_;
+}
+
+Eigen::MatrixXd FusionEKF::GetHj()
+{
+  return Hj_;
+}
+
+float FusionEKF::GetNoiseAx()
+{
+  return noise_ax_;
+}
+
+float FusionEKF::GetNoiseAy()
+{
+  return noise_ay_;
 }

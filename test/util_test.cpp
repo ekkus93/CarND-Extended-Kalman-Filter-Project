@@ -5,6 +5,7 @@
 using namespace std;
 
 TEST(LaserRadarDataReaderTest, ReadDataFile) {
+  // TODO: change this so the path isn't hard coded.
   LaserRadarDataReader dr = LaserRadarDataReader("/Users/phillipcchin/work/carnd/CarND-Extended-Kalman-Filter-Project/data/obj_pose-laser-radar-synthetic-input.txt");
 
   vector<string> parsedWords = dr.GetParsedLine();

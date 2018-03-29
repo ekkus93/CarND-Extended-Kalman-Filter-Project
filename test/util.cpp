@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <math.h>
 
 using namespace std;
 
@@ -131,4 +132,9 @@ void LaserRadarDataReader::OutputRadar(UTIL_RADAR_STRUCT radarData)
 void LaserRadarDataReader::Close()
 {
   file_->close();
+}
+
+float calcErr(float expectedVal, float actualVal)
+{
+  return fabs(expectedVal-actualVal)/expectedVal;
 }
