@@ -119,6 +119,67 @@ TEST(FusionEKFTest, Init_Radar) {
   LaserRadarDataReader dr = LaserRadarDataReader("/Users/phillipcchin/work/carnd/CarND-Extended-Kalman-Filter-Project/data/obj_pose-laser-radar-synthetic-input.txt");
 
   char lineStr[256];
+  float expected_val, actual_val;
+  float err_sum_x = 0.0;
+  float err_sum_y = 0.0;
+  int n=100;
+
+  dr.GetLine(lineStr);
+  while (lineStr[0] != 'R')
+  {
+    dr.GetLine(lineStr);
+  }
+
+  RadarData rd = RadarData(lineStr);
+  MeasurementPackage mp = rd.ToMeasurementPackage();  
+
+  for(int i=0; i<n; i++)
+  {
+    FusionEKF fEKF;
+
+    // Init
+    fEKF.Init_Radar(mp);
+    expected_val = rd.x_groundtruth_;
+    actual_val = fEKF.ekf_.x_(0);
+    cout << "###x_groundtruth_: " << rd.x_groundtruth_ << "\n";
+    cout << "###actual_val: " << fEKF.ekf_.x_(0) << "\n";
+    err_sum_x += calcErr(expected_val, actual_val);
+
+    expected_val = rd.y_groundtruth_;
+    actual_val = fEKF.ekf_.x_(1);  
+    cout << "###y_groundtruth_: " << rd.y_groundtruth_ << "\n";
+    cout << "###actual_val: " << fEKF.ekf_.x_(1) << "\n";
+    err_sum_y += calcErr(expected_val, actual_val);
+
+    EXPECT_NEAR(0.0, fEKF.ekf_.x_(2), 0.001);
+    EXPECT_NEAR(0.0, fEKF.ekf_.x_(3), 0.001);
+
+    EXPECT_EQ(mp.timestamp_, fEKF.GetPreviousTimestamp());
+    EXPECT_TRUE(fEKF.GetIsInitialized());
+
+    dr.GetLine(lineStr);
+    while (lineStr[0] != 'R')
+    {
+      dr.GetLine(lineStr);
+    }
+
+    rd = RadarData(lineStr);
+    mp = rd.ToMeasurementPackage();  
+  }
+
+  EXPECT_TRUE(err_sum_x/n <= 0.10);
+  EXPECT_TRUE(err_sum_y/n <= 0.10);
+}
+
+TEST(FusionEKFTest, ProcessMeasurement_Radar) 
+{
+  vector<VectorXd> estimation_vec;
+  vector<VectorXd> ground_truth_vec;  
+
+  // TODO: change this so the path isn't hard coded. 
+  LaserRadarDataReader dr = LaserRadarDataReader("/Users/phillipcchin/work/carnd/CarND-Extended-Kalman-Filter-Project/data/obj_pose-laser-radar-synthetic-input.txt");
+
+  char lineStr[256];
 
   dr.GetLine(lineStr);
   while (lineStr[0] != 'R')
@@ -129,32 +190,39 @@ TEST(FusionEKFTest, Init_Radar) {
   RadarData rd = RadarData(lineStr);
   MeasurementPackage mp = rd.ToMeasurementPackage();
 
+  ground_truth_vec.push_back(rd.GetGroundTruth());
+
   FusionEKF fEKF;
+  Tools tools;
 
   // Init
   fEKF.Init_Radar(mp);
+  estimation_vec.push_back(fEKF.ekf_.x_);
 
-  float expected_val, actual_val;
+  for(int i=0; i<10; i++)
+  {
+    cout << "###i: " << i << "\n";
+    // get next Lidar reading
+    dr.GetLine(lineStr);
+    while (lineStr[0] != 'R')
+    {
+      dr.GetLine(lineStr);
+    }
 
-  expected_val = rd.x_groundtruth_;
-  actual_val = fEKF.ekf_.x_(0);
-  cout << "###x_groundtruth_: " << rd.x_groundtruth_ << "\n";
-  cout << "###actual_val: " << fEKF.ekf_.x_(0) << "\n";
-  float err = calcErr(expected_val, actual_val) ;
-  cout << "###err: " << err << "\n";
-  EXPECT_TRUE(err <= 0.05);
+    rd = RadarData(lineStr);
+    mp = rd.ToMeasurementPackage();
 
-  expected_val = rd.y_groundtruth_;
-  actual_val = fEKF.ekf_.x_(1);  
-  cout << "###y_groundtruth_: " << rd.y_groundtruth_ << "\n";
-  cout << "###actual_val: " << fEKF.ekf_.x_(1) << "\n";
-  err = calcErr(expected_val, actual_val) ;
-  cout << "###err: " << err << "\n";
-  EXPECT_TRUE(err <= 0.11);
+    fEKF.ProcessMeasurement(mp);
 
-  EXPECT_NEAR(0.0, fEKF.ekf_.x_(2), 0.001);
-  EXPECT_NEAR(0.0, fEKF.ekf_.x_(3), 0.001);
+    cout << "x_groundtruth_: " << rd.x_groundtruth_ << "\n";
+    cout << "y_groundtruth_: " << rd.y_groundtruth_ << "\n";
+    cout << "vx_groundtruth_: " << rd.vx_groundtruth_ << "\n";  
+    cout << "vy_groundtruth_: " << rd.vy_groundtruth_ << "\n"; 
 
-  EXPECT_EQ(mp.timestamp_, fEKF.GetPreviousTimestamp());
-  EXPECT_TRUE(fEKF.GetIsInitialized());
+    ground_truth_vec.push_back(rd.GetGroundTruth());
+    estimation_vec.push_back(fEKF.ekf_.x_);
+  }
+
+  VectorXd rmse = tools.CalculateRMSE(estimation_vec, ground_truth_vec);
+  cout << "###RMSE: " << rmse << "\n";
 }

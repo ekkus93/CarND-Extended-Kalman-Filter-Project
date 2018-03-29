@@ -98,6 +98,15 @@ void RadarData::GetXY(float &x, float &y)
     assert(!isnan(y));
 }
 
+VectorXd RadarData::GetGroundTruth()
+{
+  VectorXd groundTruth = VectorXd(4);
+
+  groundTruth << x_groundtruth_, y_groundtruth_, vx_groundtruth_, vy_groundtruth_;
+
+  return groundTruth;
+}
+
 // LidarData
 
 LidarData::LidarData()

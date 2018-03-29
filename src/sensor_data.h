@@ -17,6 +17,7 @@ class RadarData {
     MeasurementPackage ToMeasurementPackage();
     float ConstrainAngle(float angle);
     void GetXY(float &x, float &y);
+    Eigen::VectorXd GetGroundTruth();
 
     float rho_measured_;
     float phi_measured_;
