@@ -123,11 +123,6 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   MatrixXd K = P_ * Ht * Si;
 
   // new state
-  /*
-  cout << "###y: " << y.rows() << ", " << y.cols() << "\n";
-  cout << "###K: " << K.rows() << ", " << K.cols() << "\n";
-  cout << "###x_: " << x_.rows() << ", " << x_.cols() << "\n";
-  */
   x_ = x_ + (K * y);
   P_ = (I_ - K * H_) * P_;
 }

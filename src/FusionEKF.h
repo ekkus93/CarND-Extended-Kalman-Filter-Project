@@ -40,6 +40,7 @@ public:
 
   void DisplayData();
 
+  // for unit tests
   bool GetIsInitialized();
   long long GetPreviousTimestamp();
   Eigen::MatrixXd GetRLaser();

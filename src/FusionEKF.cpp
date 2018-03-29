@@ -50,7 +50,7 @@ FusionEKF::FusionEKF() {
 	noise_ax_ = 6;
 	noise_ay_ = 6;
 
-  DisplayData();
+  //DisplayData();
 }
 
 /**
@@ -205,10 +205,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
    */
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-    cout << "###RADAR\n";
+    // cout << "###RADAR\n";
     PredictAndUpdate_Radar(measurement_pack);
   } else {
-    cout << "###LIDAR\n";   
+    // cout << "###LIDAR\n";   
     PredictAndUpdate_Lidar(measurement_pack);
   }
 
@@ -229,6 +229,7 @@ void FusionEKF::DisplayData()
   ekf_.DisplayData();
 }
 
+// for unit tests
 bool FusionEKF::GetIsInitialized()
 {
   return is_initialized_;
